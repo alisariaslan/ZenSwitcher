@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net8.0-ios;</TargetFrameworks>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>Kuryem</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Display name -->
+		<ApplicationTitle>Kuryem</ApplicationTitle>
+		<!-- App Identifier -->
+		<ApplicationId Condition="$(TargetFramework.Contains('-android'))">com.yemekpos.kuryem2</ApplicationId>
+		<ApplicationId Condition="$(TargetFramework.Contains('-ios'))">com.yemekpos.kuryem</ApplicationId>
+		<!-- Versions -->
+		<ApplicationDisplayVersion>46.0</ApplicationDisplayVersion>
+		<ApplicationVersion>46</ApplicationVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+	</PropertyGroup>
+	<ItemGroup>
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" />
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\splashscreen.png" BaseSize="512,512" Resize="False" Color="#D9533A" />
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Include="Resources\Images\SiparisTurleri\*" />
+		<MauiImage Include="Resources\Images\Svg\Raw\*" BaseSize="256,256" />
+		<MauiImage Include="Resources\Images\Svg\Dark\*" BaseSize="256,256" TintColor="#000" />
+		<MauiImage Include="Resources\Images\Svg\Light\*" BaseSize="256,256" TintColor="#FFF" />
+		<MauiImage Include="Resources\Images\Svg\Red\*" BaseSize="256,256" TintColor="#FD5554" />
+		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
+		<!-- Custom Fonts -->
+		<MauiFont Include="Resources\Fonts\*" />
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+	<!-- Shared libraries -->
+	<ItemGroup>
+		<PackageReference Include="AlohaKit.Animations" Version="1.1.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+		<PackageReference Include="Refit" Version="7.2.1" />
+		<PackageReference Include="Refit.HttpClientFactory" Version="7.2.1" />
+		<PackageReference Include="SkiaSharp.Extended.UI.Maui" Version="2.0.0" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.91" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.91" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.0" />
+		<PackageReference Include="Plugin.Firebase" Version="3.0.0" />
+	</ItemGroup>
+	<!-- Android specific libraries -->
+	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.4.0" />
+	</ItemGroup>
+		<!-- IOS specific libraries -->
+	<ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
+		<PackageReference Include="Camera.MAUI.ZXing" Version="1.0.0" />
+	</ItemGroup>
+	<!-- IOS DEBUG -->
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-ios|AnyCPU'">
+		<CreatePackage>false</CreatePackage>
+		<CodesignProvision>KuryemTestProvision</CodesignProvision>
+		<CodesignKey>Apple Development: Created via API (GAW9M7N374)</CodesignKey>
+	</PropertyGroup>
+	<!-- IOS RELEASE -->
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
+		<RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
+		<CodesignProvision>KuryemTestProvision</CodesignProvision>
+		<CodesignKey>Apple Development: Created via API (GAW9M7N374)</CodesignKey>
+		<ArchiveOnBuild>true</ArchiveOnBuild>
+		<CreatePackage>false</CreatePackage>
+	</PropertyGroup>
+<!-- DEPLOY CERTS
+		<CodesignProvision>Kuryem</CodesignProvision>
+		<CodesignKey>Apple Distribution: Mercan Bilgi Teknolojileri Sanayi ve Ticaret Limited Sirketi (M3A3B5P5JV)</CodesignKey>
+-->
+<!-- TEST CERTS
+		<CodesignProvision>KuryemTestProvision</CodesignProvision>
+		<CodesignKey>Apple Development: Created via API (GAW9M7N374)</CodesignKey>
+-->
+	<!-- ANDROID DEBUG -->
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
+		<AndroidUseAapt2>True</AndroidUseAapt2>
+		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+	</PropertyGroup>
+	<!-- ANDRIOD RELEASE -->
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+		<AndroidKeyStore>True</AndroidKeyStore>
+		<AndroidSigningKeyStore>Assets/desenyazilim_ceppos.jks</AndroidSigningKeyStore>
+		<AndroidSigningKeyAlias>redpos</AndroidSigningKeyAlias>
+		<AndroidSigningKeyPass>desenyazilim</AndroidSigningKeyPass>
+		<AndroidSigningStorePass>desenyazilim</AndroidSigningStorePass>
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<RunAOTCompilation>True</RunAOTCompilation>
+		<AndroidEnableProfiledAot>False</AndroidEnableProfiledAot>
+		<!-- LLVM MUST BE FALSE FOR SOCKET COMMUNUCATION -->
+		<EnableLLVM>False</EnableLLVM>
+		<!-- TRIMMED TRUE -->
+		<PublishTrimmed>True</PublishTrimmed>
+		<AndroidUseAapt2>True</AndroidUseAapt2>
+		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+	</PropertyGroup>
+	<!-- FIRABASE JSON ANDROID -->
+	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+		<GoogleServicesJson Include="google-services.json" />
+	</ItemGroup>
+	<!-- FIRABASE JSON IOS -->
+	<ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
+		<BundleResource Include="GoogleService-Info.plist" />
+	</ItemGroup>
+	<!-- Project references -->
+	<ItemGroup>
+		<ProjectReference Include="..\MobileSocketProvider\MobileSocketProvider.csproj" />
+		<ProjectReference Include="..\MobileDatabase\MobileDatabase.csproj" />
+	</ItemGroup>
+	<!-- Firebase prevent build error for android -->
+	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+		<PackageReference Include="Xamarin.AndroidX.Core" Version="1.12.0.2" />
+		<PackageReference Include="Xamarin.AndroidX.Collection" Version="1.3.0.1" />
+		<PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.3.0.1" />
+		<PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.8.0.1" />
+		<PackageReference Include="Xamarin.AndroidX.Browser" Version="1.6.0.2" />
+	</ItemGroup>
+	<!-- Firebase Analytics swift link error fix -->
+	<Target Name="LinkWithSwift" DependsOnTargets="_ParseBundlerArguments;_DetectSdkLocations" BeforeTargets="_LinkNativeExecutable">
+		<PropertyGroup>
+			<_SwiftPlatform Condition="$(RuntimeIdentifier.StartsWith('iossimulator-'))">iphonesimulator</_SwiftPlatform>
+			<_SwiftPlatform Condition="$(RuntimeIdentifier.StartsWith('ios-'))">iphoneos</_SwiftPlatform>
+		</PropertyGroup>
+		<ItemGroup>
+			<_CustomLinkFlags Include="-L" />
+			<_CustomLinkFlags Include="/usr/lib/swift" />
+			<_CustomLinkFlags Include="-L" />
+			<_CustomLinkFlags Include="$(_SdkDevPath)/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/$(_SwiftPlatform)" />
+			<_CustomLinkFlags Include="-Wl,-rpath" />
+			<_CustomLinkFlags Include="-Wl,/usr/lib/swift" />
+		</ItemGroup>
+	</Target>
+	<!-- Firebase crashlytics fix  -->
+ 	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    	<_ExportSymbolsExplicitly>false</_ExportSymbolsExplicitly>
+	</PropertyGroup>
+</Project>

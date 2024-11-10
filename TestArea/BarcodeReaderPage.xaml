@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="Kuryem.Views.BarcodeReaderPage"
+		xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
+			 Title="Barkod Okut"
+			 Loaded="ContentPage_Loaded">
+	<Grid>
+
+<!--ANDROID
+		xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+		<zxing:CameraBarcodeReaderView x:Name="cameraBarcodeReaderView" BarcodesDetected="cameraBarcodeReaderView_BarcodesDetected" IsTorchOn="{Binding IsTorchOn}" />
+-->
+
+<!--IOS
+		xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
+		<cv:CameraView x:Name="cameraView" TorchEnabled="{Binding IsTorchOn}" HorizontalOptions="Fill" VerticalOptions="Fill"/>
+-->
+
+		<cv:CameraView x:Name="cameraView" TorchEnabled="{Binding IsTorchOn}" HorizontalOptions="Fill" VerticalOptions="Fill"/>
+
+		<Border WidthRequest="350"
+				HeightRequest="200"
+				Margin="0,0,0,100"
+				HorizontalOptions="Center"
+				VerticalOptions="Center"/>
+
+		<Grid VerticalOptions="End"
+				Margin="0,0,0,30">
+			<Button x:Name="flashbtn"
+					Clicked="flashbtn_Clicked"
+					Grid.Column="1"
+					HorizontalOptions="Center">
+				<Button.Triggers>
+					<DataTrigger TargetType="Button"
+							Binding="{Binding IsTorchOn}"
+							Value="True">
+						<Setter Property="Text"
+								Value="Flaş açık"/>
+						<Setter Property="BackgroundColor"
+								Value="Green"/>
+					</DataTrigger>
+					<DataTrigger TargetType="Button"
+							Binding="{Binding IsTorchOn}"
+							Value="False">
+						<Setter Property="Text"
+								Value="Flaş kapalı"/>
+						<Setter Property="BackgroundColor"
+								Value="Red"/>
+					</DataTrigger>
+				</Button.Triggers>
+			</Button>
+		</Grid>
+
+		<HorizontalStackLayout  IsVisible="{Binding DebugEnabled}"
+				HorizontalOptions="End"
+				VerticalOptions="Start"
+				BackgroundColor="Yellow">
+			<Entry Placeholder="SiparisNo"
+					Text="{Binding DebugSipNo}"
+					Keyboard="Numeric"/>
+			<Button Text="ok"
+					Command="{Binding DebugOk}"/>
+		</HorizontalStackLayout>
+	</Grid>
+</ContentPage>
