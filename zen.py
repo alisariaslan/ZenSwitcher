@@ -116,7 +116,7 @@ def CreateDefaults():
             print(f"\nAçılacak olan seçim penceresini kullanarak bu projenin hedefleyeceği, hedef proje klasörünü seçin.\n")
             target_project_folder = SelectFolder()
             if not target_project_folder:
-                print(f"Hedef proje klasörü seçimi iptal edildiği için gerekli dosyalar {selected_project} klasörü altına oluşturulamadı!")
+                print(f"\nHedef proje klasörü seçimi iptal edildiği için gerekli dosyalar {selected_project} klasörü altına oluşturulamadı!")
                 return
             root = ET.Element("zen-project")
             ET.SubElement(root, "project-id").text = str(uuid.uuid4())
@@ -251,7 +251,7 @@ def EditProfile(profile_root: Path):
 # Profil ana dosyasını oluştur
 def NewProfileFile(project: Path, profile: Path):
     profile_file = profile / profile_settings_file_name
-    print(f"\nAçılacak olan seçim penceresini kullanarak bu profilin hedefleyeceği, hedef dosyayı seçin. (Search edilip, replace atılacak dosya)\n")
+    print(f"\nAçılacak olan seçim penceresini kullanarak bu profilin hedefleyeceği, hedef dosyayı seçin.\n(Search edilip, replace atılacak dosya)\n")
     target_file = SelectFile()
     if not target_file:
         print(f"\nHedef dosya seçimi iptal edildiği için gerekli dosyalar {profile} klasörü altına oluşturulamadı!")
@@ -270,6 +270,7 @@ def NewProfileFile(project: Path, profile: Path):
     ET.SubElement(root, "profile-id").text = str(uuid.uuid4())
     ET.SubElement(root, "target-profile-path").text = target_file
     ET.SubElement(root, "creation-date").text = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+    ET.SubElement(root, "last-applied-date").text = ""
     ET.SubElement(root, "compatible-version").text = f"{appVersionStr}"
     ET.SubElement(root, "search-tags-mode").text = "parent"
     paths = ET.SubElement(root, "user-based-project-paths",)
@@ -366,7 +367,9 @@ def ReplaceValues(profile,search_terms, replace_terms):
             content[index] = line
         with open(target_file, 'w', encoding='utf-8') as file:
             file.writelines(content)
-        print(f"\nProfil başarıyla uygulandı. Değiştirilen dosya yolu: {target_file}")
+        print(f"\nProfil başarıyla uygulandı. Değiştirilen dosya yolu: {target_file}\nIDE ortamınızı güncel değilse güncellemeyi unutmayın!")
+        root.find("last-applied-date").text = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+        tree.write(profile/profile_settings_file_name)
     except FileNotFoundError:
         print(f"\nHedef dosya bulunamadı: {target_file}")
     except ET.ParseError:
@@ -398,6 +401,37 @@ def ApplyProfile(project: Path, profile: Path):
         return
     ReplaceValues(selected_profile,search_terms,replace_terms)
 
+def ShowLastAppliedProfile():
+    profiles_folder = selected_project / profiles_folder_name
+    if not profiles_folder.exists() or not profiles_folder.is_dir():
+        print(f"Profillerin bulunduğu klasör mevcut değil: Bulunması gereken konum: {profiles_folder}")
+        return
+    last_applied_profile = None
+    last_applied_date = None
+
+    for profile_folder in profiles_folder.iterdir():
+        if profile_folder.is_dir():  # Check if it's a directory (a profile)
+            profile_settings = profile_folder / profile_settings_file_name
+            if profile_settings.exists():
+                try:
+                    tree = ET.parse(profile_settings)
+                    root = tree.getroot()
+                    profile_last_applied_date = root.find("last-applied-date").text if root.find("last-applied-date") is not None else None
+                    if profile_last_applied_date:
+                        try:
+                            profile_date = datetime.strptime(profile_last_applied_date, '%d-%m-%Y %H:%M:%S')
+                            if last_applied_date is None or profile_date > last_applied_date:
+                                last_applied_date = profile_date
+                                last_applied_profile = profile_folder.name
+                        except ValueError:
+                            print(f"\nGeçersiz tarih formatı! {profile_last_applied_date} değeri {profile_settings.name} dosyasındaki 'last-applied-date' etiketi için.")
+                except ET.ParseError as e:
+                    print(f"\nOkuma hatası! {profile_settings.name} adlı dosya okunamadı. Devam ediliyor.\nDosya konumu: {profile_settings}")
+    if last_applied_profile:
+        print(f"\n{selected_project.name} için son uygulanan profil: {last_applied_profile} ({last_applied_date.strftime('%d-%m-%Y %H:%M:%S')})")
+    else:
+        print(f"\n{selected_project.name} için son uygulanan herhangi bir profil bulunamadı.")
+
 CreateDefaults()
 ListProjects()
 
@@ -424,6 +458,8 @@ while True:
         NewProfile(selected_project/profiles_folder_name)
     elif (cmd == "l" or cmd =="list") and depth == 0:
         ListProjects()
+    elif (cmd == "last") and depth == 1:
+        ShowLastAppliedProfile()
     elif (cmd == "l" or cmd =="list") and depth == 1:
         ListProfiles(selected_project)
     elif (cmd == "c" or cmd == "cancel") and depth == 1:
