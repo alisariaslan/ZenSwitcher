@@ -25,7 +25,7 @@
     Ve bu ihtiyacın karşılanması amacıyla ortaya çıkardığım bir ürün oldu.
     <br />
     <br/>
-    <a href="#docs"><strong>Nasıl kullanılır?</strong></a>
+   <!-- <a href="#docs"><strong>Nasıl kullanılır?</strong></a>  -->
     <br />
   </p>
 </div>
