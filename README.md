@@ -57,22 +57,17 @@
 <!-- ABOUT THE PROJECT -->
 <p id="about"></p>
 
-## Hakkında
+## İhtiyaç Senaryosu
 
 <p>
-Ceppos mobil projesi, .NET MAUI kullanılarak inşa edilmiştir. Proje kayak dosyaları, Visual Studio (VS) ile oluşturulmuş olup, Android tarafında Windows üzerinden VS ile, IOS tarafında ise MacOS üzerinden VS Code ile geliştirmeleri devam etmektedir. 
-</p>
-
-<p>
-  <img src="https://play-lh.googleusercontent.com/10jLb3dF5Rz3JqjcybGN4wW7NN1NSoB-ZWB0NPC7WtS4AoxwN6akZWQIBx6qiXuxiQ=w2560-h1440-rw" alt="screenshot1" width="120" height="240">
-  <img src="https://play-lh.googleusercontent.com/XA1N5KhD7y9bgUFHfaWFqMXwdIZ9Jw2lz9gApG51UdEPzK8dqfEGqhbESTpc_vUeVmo=w2560-h1440-rw" alt="screenshot1" width="120" height="240">
-  <img src="https://play-lh.googleusercontent.com/DCWK8C7zriiC6ybxqg2iudXsP11ueZlNWfL8cgPVHZ5cpFly04-QIZbE9JUJP4ZtimM=w2560-h1440-rw" alt="screenshot1" width="120" height="240">
+Örneğin, projenizde iki adet profil var. Birisi publish diğeri release. Fakat siz daha fazla profile ihtiyaç duruyorsunuz. Örneğin platforma bağlı bir koşul yazdığımızda #if ANDROID tarzında bir koşul ihtiyacınızı görecektir.
+Ancak #if ANDROID bloklarını her kaynak dosyası desteklemeyebilir. Veya #if ANDROID RELEASE TESTING tarzında bir ihtiyacınız olabilir. Bu durumda belirttiğiniz metinleri seçtiğiniz profile göre switchleyen bir mini-program işinizi görebilir. 
 </p>
 
 <!-- Documents -->
 <p id="docs"></p>
 
-## Dökümanlar
+## Kullanım
 
 <p>
 Bu bölümde proje ile ilgili yazılı dosyalar ve çizimler bulabilirsiniz.
