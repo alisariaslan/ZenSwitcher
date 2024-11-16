@@ -25,12 +25,8 @@
     Ve bu ihtiyacın karşılanması amacıyla ortaya çıkardığım bir ürün oldu.
     <br />
     <br/>
-    <a href="#docs"><strong>Dökümanlara göz at»</strong></a>
+    <a href="#docs"><strong>Nasıl kullanılır?</strong></a>
     <br />
-    <br />
-    <a target="_blank" href="https://yemekpos.atlassian.net/">Bug Bildir (Jira)</a>
-    ·
-    <a target="_blank" href="https://yemekpos.atlassian.net/">Özellik Talep Et (Jira)</a>
   </p>
 </div>
 
