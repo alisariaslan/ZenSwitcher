@@ -64,7 +64,7 @@
 Ancak #if ANDROID bloklarını her kaynak dosyası desteklemeyebilir. Veya #if ANDROID RELEASE TESTING tarzında bir ihtiyacınız olabilir. Bu durumda belirttiğiniz metinleri seçtiğiniz profile göre switchleyen bir mini-program işinizi görebilir. 
 </p>
 
-<!-- Documents -->
+<!-- 
 <p id="docs"></p>
 
 ## Kullanım
@@ -83,7 +83,7 @@ Analist Dökümanları:
 
 <p align="right">(<a href="#readme-top">Tepeye dön</a>)</p>
 
-<!-- Requirements -->
+
 <p id="requirements"></p>
 
 ## Gereksinimler
@@ -100,7 +100,7 @@ Projenin kurulumu için lütfen <a href="#installations">Kurulum İşlemleri</a>
 
 <p align="right">(<a href="#readme-top">Tepeye dön</a>)</p>
 
-<!-- Installations -->
+
 <p id="installations"></p>
 
 ## Kurulum İşlemleri
@@ -188,7 +188,7 @@ Eğer cihazınızda hali hazırda .NET MAUI paketi var ise ve proje çalışmıy
 
 <p align="right">(<a href="#readme-top">Tepeye dön</a>)</p>
 
-<!-- CONTRIBUTING -->
+
 <p id="contributers"></p>
 
 ## Emeği Geçenler
@@ -206,7 +206,7 @@ Geçmişte projede emeği geçmiş kişiler ilgili kısımlar ile beraber bu bö
 
 <p align="right">(<a href="#readme-top">Tepeye dön</a>)</p>
 
-<!-- LICENSE -->
+
 <p id="licence"></p>
 
 ## Lisans
@@ -218,4 +218,5 @@ Geçmişte projede emeği geçmiş kişiler ilgili kısımlar ile beraber bu bö
 Copyright © 2024 ♥ Yemek POS
 </p>
 
-<p align="right">(<a href="#readme-top">Tepeye dön</a>)</p>
+<p align="right">(<a href="#readme-top">Tepeye dön</a>)</p> 
+-->
