@@ -1,6 +1,6 @@
 # ZenSwitcher
-....
 
+![image](https://github.com/user-attachments/assets/ee424afb-cd10-4001-a419-f14510a0b7ea)
 
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a id="readme-top"></a>
@@ -15,20 +15,14 @@
 -->
 
 <!-- PROJECT LOGO -->
-<br />
-
-![image](https://github.com/user-attachments/assets/ee424afb-cd10-4001-a419-f14510a0b7ea)
-
 <div align="center">
 
-  <a href="https://github.com/MercanBilgiTeknoloji/CepPos">
-   <img src="https://i.ibb.co/qpWp4NL/playstore-icon.png" alt="Logo" width="80" height="80">
-  </a>
-
-  <h3 align="center">Cep POS Mobil Rapor - Mobil Uygulama</h3>
+  <h3 align="center">Zen Switcher - Profil Değiştirici</h3>
 
   <p align="center">
-    Cep POS, YemekPOS ürün ailesinin değerli bir üyesidir. İşletme ilgili mali ve istatistiki verilere her yerden ulaşabilir kılar. Şube ya da şubeler tek bir noktadan izlenebilir. Uygulamayı kullanabilmek için YemekPOS online servisler aboneliği gereklidir.
+    ZenSwitcher, Debug ve Release 'in dışında Release Test, Distrubute vb. ek profillerin ihtiyacını karşılamak amacıyla ortaya çıkmıştır.
+    .NET MAUI ile VS üzerinden projeleri yürütürken .xaml dosyalarında ek profillere ihtiyacım oldu. Bir program olsa ve hızlıca path üzerinden erişebilsem, profil değiştirebilsem dedim.
+    Ve bu ihtiyacın karşılanması amacıyla ortaya çıkardığım bir ürün oldu.
     <br />
     <br/>
     <a href="#docs"><strong>Dökümanlara göz at»</strong></a>
