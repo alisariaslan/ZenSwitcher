@@ -15,6 +15,7 @@ import platform
 import xml.etree.ElementTree as ET
 import uuid
 import easygui
+import subprocess
 
 # Çevre değişkenleri ve uyarıların manipülasyonu
 os.environ['TK_SILENCE_DEPRECATION'] = '1'
@@ -100,7 +101,7 @@ def SelectFile():
             filetypes=["*.txt", "*.py", "*.java", "*.c", "*.cpp", "*.cs", "*.html", "*.css",
             "*.js", "*.json", "*.xml", "*.yaml", "*.yml", "*.md", "*.ini",
             "*.php", "*.rb", "*.swift", "*.go", "*.r", "*.sh", "*.bat",
-            "*.sql", "*.pl", "*.vb", "*.scala", "*.lua","*.csproj"]
+            "*.sql", "*.pl", "*.vb", "*.scala", "*.lua","*.csproj","*.xaml"]
         )
     if target_file:
         print(f"\nHedef dosya seçimi başarılı: {target_file}")
@@ -190,7 +191,7 @@ def ListProfiles(project: Path):
     profiles = [item for item in profiles_folder.iterdir() if item.is_dir()]
     folder_count = len(profiles)
     if folder_count > 0:
-        print(f"\n{project.name} - Profiller ({folder_count}):")
+        print(f"\n'{project.name}' - Profiller ({folder_count}):")
         for index, profile in enumerate(profiles, start=1):
             print(f"\t{index}. {profile.name}")
         print(f"\tB. Geri")
@@ -219,10 +220,11 @@ def ListProfiles(project: Path):
 
 # Platform bağımsız gui ile klasör açma
 def OpenFolder(folder: Path):
-     if platform.system() == mac:
-            os.system(f"open {folder}")
-     elif platform.system() == win:
-            os.system(f"explorer {folder}")
+     folder_str = str(folder)
+     if platform.system() == mac:  # macOS
+        subprocess.run(["open", folder_str])
+     elif platform.system() == win:  # Windows
+        subprocess.run(["explorer", folder_str])
 
 # Yeni proje oluşturulacak yolu uygun platformda açar.
 def NewProject():
@@ -240,56 +242,81 @@ def NewProfile(project_profiles_root: Path):
         print("\nOluşturmak istediğiniz yeni profilleri klasörler halinde şimdi açılacak olan proje klasörünüze oluşturun.\nKlasör adları aynı zamanda profil adlarınız olacaktır.\nKlasörleri oluşturduktan sonra, 'l' komutu ile tekrar listeleme yapıp profiller arasında seçim yapabilirsiniz." )
         OpenFolder(project_profiles_root)
 
-# Profil düzenleme
-def EditProfile(profile_root: Path):
-        if not Path.exists(profile_root):
-            print(f"\nKlasör bulunamadı! Profile ait klasöre ulaşılamadı. Konum: {profile_root}")
-            return
-        print("\nProfili düzenlemek için lütfen oluşturulan dosyaları doldurun. Gerekli ayarlamaları yaptıktan sonra profili tekrar uygulayın." )
-        OpenFolder(profile_root)
+def AddPath(project: Path, profile: Path):
+    profile_file = profile / profile_settings_file_name
+    if not profile_file.exists():
+        print("\nProfil dosyası bulunamadı. Lütfen önce bir profil oluşturun.")
+        return
+    tree = ET.parse(profile_file)
+    root = tree.getroot()
+    target_paths = root.find("target-profile-paths")
+    if target_paths is None:
+        target_paths = ET.SubElement(root, "target-profile-paths")
+    print("\nAçılacak olan seçim penceresini kullanarak bu profilin hedefleyeceği, hedef dosyaları seçin.\n")
+    while True:
+        target_file = SelectFile()
+        if not target_file:
+            print("\nHedef dosya seçimi iptal edildi!")
+            break
+        ET.SubElement(target_paths, "path").text = target_file
+        print(f"\nHedef dosya eklendi: {target_file}")
+        choice = input("\nBaşka bir dosya eklemek ister misiniz? (A: Evet, C: Hayır): ").strip().upper()
+        if choice == 'C':
+            break
+        elif choice != 'A':
+            print("\nGeçersiz giriş, devam ediliyor...")
+    raw_xml = ET.tostring(root, encoding='utf-8', method='xml').decode('utf-8')
+    parsed_xml = minidom.parseString(raw_xml)
+    pretty_xml = parsed_xml.toprettyxml(indent="  ", newl="\n")
+    # Fazladan boş satırları kaldırıyoruz
+    cleaned_xml = "\n".join([line for line in pretty_xml.splitlines() if line.strip() != ""])
+    with open(profile_file, 'w', encoding='utf-8') as f:
+        f.write(cleaned_xml)
+    print(f"\nDosya yolları başarıyla eklendi: {profile_file}")
 
-# Profil ana dosyasını oluştur
+def remove_empty_lines(xml_string: str) -> str:
+    return "\n".join([line for line in xml_string.splitlines() if line.strip() != ""])
+
 def NewProfileFile(project: Path, profile: Path):
     profile_file = profile / profile_settings_file_name
-    print(f"\nAçılacak olan seçim penceresini kullanarak bu profilin hedefleyeceği, hedef dosyayı seçin.\n(Search edilip, replace atılacak dosya)\n")
-    target_file = SelectFile()
-    if not target_file:
-        print(f"\nHedef dosya seçimi iptal edildiği için gerekli dosyalar {profile} klasörü altına oluşturulamadı!")
+    if profile_file.exists():
+        print("\nProfil dosyası zaten mevcut. Lütfen yeni bir profil dosyası oluşturmak için farklı bir dizin seçin.")
         return
     root = ET.Element("zen-profile")
     try:
-        parent_tree = ET.parse(project/project_settings_file_name)
+        parent_tree = ET.parse(project / project_settings_file_name)
         parent_root = parent_tree.getroot()
         project_id = parent_root.find("project-id")
         if project_id is None or project_id.text is None:
             raise ET.ParseError
     except ET.ParseError:
-        print(f"\nOkuma hatası! {project_settings_file_name} adlı dosya okunamadı. Dosya içerisinde önemli bilgiler içeriyorsa kopyalayıp, projeyi yeniden oluşturun.\nDosya konumu: {selected_project/project_settings_file_name}")
+        print(f"\nOkuma hatası! {project_settings_file_name} adlı dosya okunamadı.")
         return
     ET.SubElement(root, "project-id").text = f"{project_id.text}"
     ET.SubElement(root, "profile-id").text = str(uuid.uuid4())
-    ET.SubElement(root, "target-profile-path").text = target_file
     ET.SubElement(root, "creation-date").text = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
     ET.SubElement(root, "last-applied-date").text = ""
     ET.SubElement(root, "compatible-version").text = f"{appVersionStr}"
-    ET.SubElement(root, "search-tags-mode").text = "parent"
-    paths = ET.SubElement(root, "user-based-project-paths",)
-    ET.SubElement(paths, "default").text="Bu alan daha sonraki sürümlerde kullanılacaktır"
+    paths = ET.SubElement(root, "user-based-project-paths")
+    ET.SubElement(paths, "default").text = "Bu alan daha sonraki sürümlerde kullanılacaktır"
     ET.SubElement(root, "search-file").text = f"{search_file_name}"
     ET.SubElement(root, "replace-file").text = f"{replace_file_name}"
-    raw_xml = ET.tostring(root, encoding='utf-8')
+    raw_xml = ET.tostring(root, encoding='utf-8', method='xml').decode('utf-8')
     parsed_xml = minidom.parseString(raw_xml)
-    pretty_xml = parsed_xml.toprettyxml(indent="  ")
+    pretty_xml = parsed_xml.toprettyxml(indent="  ", newl="\n")
+    pretty_xml_cleaned = remove_empty_lines(pretty_xml)
     with open(profile_file, 'w', encoding='utf-8') as f:
-        f.write(pretty_xml)
+        f.write(pretty_xml_cleaned)
     search_file = profile / search_file_name
     with open(search_file, 'w', encoding='utf-8') as f:
         f.write("#Aramak istediğiniz metni aşağıya ekleyin. Varyasyonlarını alt alta ekleyin.\n#Birden fazla metin için ise arada mutlaka boş bir yeni satır olsun.")
     replace_file = profile / replace_file_name
     with open(replace_file, 'w', encoding='utf-8') as f:
         f.write("#Değiştirmek istediğiniz metni aşağıya ekleyin.\n#Arama dosyasındaki satır sırasına dikkat ederek ekleme işlemini gerçekleştirin.")
-    print(f"\nGerekli dosyalar {profile} altına oluşturuldu.")
-    EditProfile(profile)
+    print(f"\nProfil başarıyla oluşturuldu. Konum: {profile}")
+    print("\nGerekli ayarlamaları yaptıktan sonra profili tekrar uygulayın.")
+    AddPath(project, profile)
+    OpenFolder(profile)
 
 def ReadSearchFile(profile: Path, file_name):
     try:
@@ -338,42 +365,68 @@ def ReadReplaceFile(profile: Path, file_name):
         print(f"{file_name} adlı dosya bulunamadı! Bulunması gereken dosya konumu: {profile/file_name}")
         return None
 
-def ReplaceValues(profile,search_terms, replace_terms):
+def ReplaceValues(profile, search_terms, replace_terms):
     try:
-        tree = ET.parse(profile/profile_settings_file_name)
+        # Profil dosyasını oku
+        tree = ET.parse(profile / profile_settings_file_name)
         root = tree.getroot()
-        target_file = root.find("target-profile-path")
-        if target_file is None or target_file.text is None:
-            raise ET.ParseError
-        target_file = Path(target_file.text.strip())
-        if not Path.exists(target_file):
-            raise FileNotFoundError
-        with open(target_file, 'r', encoding='utf-8') as file:
-            content = file.readlines()
-        for index, line in enumerate(content):
-            isReplacedAlready = False  # Her satır için işlem yapılmış mı kontrolü
-            for term in search_terms:
-                original = term['item']  # Orijinal terim
-                variations = term['variations']  # Varyasyonlar
-                if not isReplacedAlready and original in line:
-                    line = line.replace(original, replace_terms[search_terms.index(term)], 1)  # İlk bulunanla değiştir
-                    isReplacedAlready = True  # İşlem yapıldı olarak işaretle
-                if not isReplacedAlready:  # Eğer orijinal terim bulunmadıysa
-                    for variation in variations:
-                        if variation in line:
-                            line = line.replace(variation, replace_terms[search_terms.index(term)], 1)  # Varyasyonu da değiştir
-                            isReplacedAlready = True  # İşlem yapıldı olarak işaretle
-                            break  # İlk bulunan varyasyonu değiştirdikten sonra durdur
-            content[index] = line
-        with open(target_file, 'w', encoding='utf-8') as file:
-            file.writelines(content)
-        print(f"\nProfil başarıyla uygulandı. Değiştirilen dosya yolu: {target_file}\nIDE ortamınızı güncel değilse güncellemeyi unutmayın!")
+
+        # "target-profile-paths" öğesini bul
+        target_paths_elem = root.find("target-profile-paths")
+        if target_paths_elem is None:
+            raise ET.ParseError("target-profile-paths bulunamadı.")
+
+        # Tüm <path> öğelerini listele
+        target_paths = [Path(path_elem.text.strip()) for path_elem in target_paths_elem.findall("path") if path_elem.text]
+        if not target_paths:
+            print("\nHedef dosya yolları bulunamadı!")
+            return
+
+        for target_file in target_paths:
+            if not target_file.exists():
+                print(f"\nHedef dosya bulunamadı: {target_file}")
+                continue
+
+            # Dosyanın içeriğini oku
+            with open(target_file, 'r', encoding='utf-8') as file:
+                content = file.readlines()
+
+            # Arama ve değiştirme işlemleri
+            for index, line in enumerate(content):
+                isReplacedAlready = False  # Her satır için işlem yapılıp yapılmadığını kontrol et
+                for term in search_terms:
+                    original = term['item']  # Orijinal terim
+                    variations = term['variations']  # Varyasyonlar
+
+                    # Orijinal terimi değiştir
+                    if not isReplacedAlready and original in line:
+                        line = line.replace(original, replace_terms[search_terms.index(term)], 1)
+                        isReplacedAlready = True
+
+                    # Varyasyonları kontrol et ve değiştir
+                    if not isReplacedAlready:
+                        for variation in variations:
+                            if variation in line:
+                                line = line.replace(variation, replace_terms[search_terms.index(term)], 1)
+                                isReplacedAlready = True
+                                break
+
+                # Güncellenmiş satırı kaydet
+                content[index] = line
+
+            # Değişiklikleri dosyaya yaz
+            with open(target_file, 'w', encoding='utf-8') as file:
+                file.writelines(content)
+            print(f"\nProfil başarıyla uygulandı. Değiştirilen dosya yolu: {target_file}")
+
+        # Son uygulama tarihini güncelle
         root.find("last-applied-date").text = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
-        tree.write(profile/profile_settings_file_name)
-    except FileNotFoundError:
-        print(f"\nHedef dosya bulunamadı: {target_file}")
-    except ET.ParseError:
-        print(f"\nOkuma hatası! {profile_settings_file_name} adlı dosya okunamadı. Dosya içerisinde önemli bilgiler içeriyorsa kopyalayıp, dosyayı yeniden oluşturun.\nDosya konumu: {profile/profile_settings_file_name}")
+        tree.write(profile / profile_settings_file_name)
+
+    except FileNotFoundError as e:
+        print(f"\nDosya bulunamadı: {e}")
+    except ET.ParseError as e:
+        print(f"\nXML okuma hatası: {e}. Dosya: {profile / profile_settings_file_name}")
 
 # Seçilen proje altındaki profili uygula.
 def ApplyProfile(project: Path, profile: Path):
@@ -397,7 +450,7 @@ def ApplyProfile(project: Path, profile: Path):
     search_terms = ReadSearchFile(selected_profile,search_file_name)
     replace_terms = ReadReplaceFile(selected_profile,replace_file_name)
     if (search_terms is None or replace_terms is None) or (len(search_terms) == 0 or len(replace_terms) == 0):
-        print(f"\nProfil içerisindeki arama veya değişim dosyası boş gibi gözüküyor.\nLütfen kontrol edin. Profil konumu: {selected_profile}")
+        print(f"\nProfil içerisindeki arama veya değişim dosyası boş gibi gözüküyor.\n\nLütfen kontrol edin. Profil konumu: {selected_profile}")
         return
     ReplaceValues(selected_profile,search_terms,replace_terms)
 
@@ -428,9 +481,9 @@ def ShowLastAppliedProfile():
                 except ET.ParseError as e:
                     print(f"\nOkuma hatası! {profile_settings.name} adlı dosya okunamadı. Devam ediliyor.\nDosya konumu: {profile_settings}")
     if last_applied_profile:
-        print(f"\n{selected_project.name} için son uygulanan profil: {last_applied_profile} ({last_applied_date.strftime('%d-%m-%Y %H:%M:%S')})")
+        print(f"\n'{selected_project.name}' projesi için son uygulanan profil: {last_applied_profile} ({last_applied_date.strftime('%d-%m-%Y %H:%M:%S')})")
     else:
-        print(f"\n{selected_project.name} için son uygulanan herhangi bir profil bulunamadı.")
+        print(f"\n'{selected_project.name}' projesi için son uygulanan herhangi bir profil bulunamadı.")
 
 CreateDefaults()
 ListProjects()
@@ -440,7 +493,7 @@ while True:
     if depth == 0:
         cmdStr = "\nZen - Komut girin (h/help): "
     elif depth == 1:
-        cmdStr = f"\nZen - {selected_project.name} - Komut girin (h/help): "
+        cmdStr = f"\nZen - '{selected_project.name}' - Komut girin (h/help): "
     cmd = input(cmdStr).strip().lower()
     if cmd == "h" or cmd =="help":
         ListAllCommands()
@@ -454,10 +507,12 @@ while True:
         OpenFolder(root_folder)
     elif (cmd =="n" or cmd =="new") and depth == 0:
         NewProject()
-    elif (cmd =="n" or cmd =="new") and depth == 1:
-        NewProfile(selected_project/profiles_folder_name)
     elif (cmd == "l" or cmd =="list") and depth == 0:
         ListProjects()
+    elif (cmd =="n" or cmd =="new") and depth == 1:
+        NewProfile(selected_project/profiles_folder_name)
+    # elif (cmd =="np" or cmd =="newpath") and depth == 1:
+    #     AddPath(selected_project,selected_profile)
     elif (cmd == "last") and depth == 1:
         ShowLastAppliedProfile()
     elif (cmd == "l" or cmd =="list") and depth == 1:
