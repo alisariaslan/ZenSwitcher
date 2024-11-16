@@ -30,30 +30,6 @@
   </p>
 </div>
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>İçerik Tablosu</summary>
-  <ol>
-    <li>
-      <a href="#about">Proje Hakkında</a>
-      <ul>
-        <li><a href="#docs">Dökümanlar</a></li>
-        <li><a href="#requirements">Gereksinimler</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#installations">Kurulum İşlemleri</a>
-      <ul>
-        <li><a href="#install-windows">Windows</a></li>
-        <li><a href="#install-macos">Macos</a></li>
-      </ul>
-    </li>
-    <li><a href="#git">Git Yapısı</a></li>
-    <li><a href="#contributers">Emeği Geçenler</a></li>
-    <li><a href="#licence">Lisans</a></li>
-  </ol>
-</details>
-
 <!-- ABOUT THE PROJECT -->
 <p id="about"></p>
 
